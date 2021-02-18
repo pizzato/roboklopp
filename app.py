@@ -22,7 +22,7 @@ def main():
         st.markdown("""
             # Robo Klopp presents: 
             
-            ## _Weekly FPL Transfer Advise_
+            ## _Weekly FPL Transfer Advice_
             ---
             "humans coaches are overrated" -- Robo Klopp   
         """)
