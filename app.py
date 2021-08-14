@@ -14,7 +14,7 @@ fpl = FPLData(convert_to_dataframes=True)
 
 
 def main():
-    col1, col2 = st.beta_columns([1, 3])
+    col1, col2 = st.columns([1, 3])
     with col1:
         st.image('images/roboklopp1.jpeg')
 
@@ -68,7 +68,7 @@ def main():
         
         """.format(squad_name=squad_name, captain_name=captain_name))
 
-        cols = st.beta_columns(len(df_my_team))
+        cols = st.columns(len(df_my_team))
         for i, col in enumerate(cols):
             with col:
                 player = df_my_team.iloc[i]
