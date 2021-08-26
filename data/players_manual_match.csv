@@ -1,0 +1,47 @@
+id_a,team_id,fullname,id_b,team_id,name_b,team_name
+12,1,Mohamed Naser El Sayed Elneny,1452,42,Mohamed Elneny,Arsenal
+26,1,Gabriel Teodoro Martinelli Silva,127769,42,Gabriel Martinelli,Arsenal
+466,1,Nuno Varela Tavares,41577,42,Nuno Tavares,Arsenal
+478,1,Albert Sambi Lokonga,1427,42,A. Lokonga,Arsenal
+45,2,Ezri Konsa Ngoyo,19354,66,E. Konsa,Aston Villa
+35,2,John McGinn,19191,66,J.  McGinn,Aston Villa
+43,2,Emiliano Buendia Stati,19071,66,E. Buendia,Aston Villa
+79,3,Tariqe Fosu-Henry,19831,55,T. Fosu,Brentford
+80,3,David Raya Martin,19465,55,David Raya,Brentford
+82,3,Pelenda Joshua Dasilva,19362,55,J. Dasilva,Brentford
+89,3,Mads Roerslev Rasmussen,15745,55,M. Rasmussen,Brentford
+90,3,Mads Bech Srensen,19345,55,M. Srensen,Brentford
+108,5,Johann Berg Gudmundsson,2790,44,J. Gumundsson,Burnley
+164,8,Gylfi Sigurdsson,2795,45,G. Sigursson,Everton
+207,9,Ricardo Domingos Barbosa Pereira,18771,46,Ricardo Pereira,Leicester
+192,10,Helder Wander Sousa de Azevedo e Costa,18752,63,Helder Costa,Leeds
+463,10,Hector Junior Firpo Adames,1564,63,Junior Firpo,Leeds
+225,11,Thiago Alcantara do Nascimento,507,40,Thiago Alcantara,Liverpool
+256,12,Joao Pedro Cavaco Cancelo,855,50,Joao Cancelo,Manchester City
+257,12,Ederson Santana de Moraes,617,50,Ederson Moraes,Manchester City
+261,12,Bernardo Mota Veiga de Carvalho e Silva,636,50,Bernardo Silva,Manchester City
+262,12,Ruben Santos Gato Alves Dias,567,50,Ruben Dias,Manchester City
+263,12,Gabriel Fernando de Jesus,643,50,Gabriel Jesus,Manchester City
+510,13,Jose Diogo Dalot Teixeira,886,33,Diogo Dalot,Manchester United
+277,13,Bruno Miguel Borges Fernandes,1485,33,Bruno Fernandes,Manchester United
+279,13,Alex Nicolao Telles,378,33,Alex Telles,Manchester United
+302,14,Javier Manquillo,18896,34,Javi Manquillo,Newcastle
+328,15,Przemyslaw Placheta,40774,71,P. Pacheta,Norwich
+471,15,Pierre Lees-Melou,22170,71,P. Lees Melou,Norwich
+335,16,Oriol Romeu Vidal,18949,41,Oriol Romeu,Southampton
+491,16,Tino Livramento,158694,41,V. Livramento,Southampton
+359,17,Heung-Min Son,186,47,Son Heung-Min,Tottenham
+487,17,Bryan Gil Salvatierra,2061,47,Bryan Gil,Tottenham
+363,17,Bamidele Alli,172,47,D. Alli,Tottenham
+382,18,Francisco Femenia Far,18794,38,Kiko Femenia,Watford
+393,18,Isaac Success Ajayi,2777,38,I. Success,Watford
+472,18,Juan Camilo Hernandez Suarez,47582,38,J. Hernandez,Watford
+408,19,Lukasz Fabianski,2997,48,. Fabianski,West Ham
+426,20,Joao Filipe Iria Santos Moutinho,2677,39,Joao Moutinho,Wolves
+441,20,Pedro Lomba Neto,1864,39,Pedro Neto,Wolves
+433,20,Jonathan Castro Otto,18740,39,Jonny Castro,Wolves
+436,20,Ruben Diogo da Silva Neves,2676,39,Ruben Neves,Wolves
+437,20,Nelson Cabral Semedo,130,39,Nelson Semedo,Wolves
+438,20,Daniel Castelo Podence,1605,39,Daniel Podence,Wolves
+446,20,Yerson Mosquera Valdelamar,195717,39,Y. Mosquera,Wolves
+475,20,Jose Malheiro de Sa,1590,39,Jose Sa,Wolves
