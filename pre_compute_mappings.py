@@ -1,8 +1,9 @@
 from api_football import APIFootballExtended
 from fpldata import FPLData
 from api_maps import APIMaps
+import streamlit as st
 
-key = "898953c6f1msh6aa6567453ea702p191fc3jsnc69555f6e5b2"
+key = st.secrets["api_football_key"]
 league = 39
 season = 2021
 
