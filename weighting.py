@@ -57,8 +57,10 @@ class PlayerWeights:
         return weights
 
     def _get_weights(self):
-        _original_val = dict(now_cost=40,
-                             total_points=30,
+        _original_val = dict(ep_this=100,
+                             ep_next=70,
+                             now_cost=30,
+                             total_points=50,
                              strength_overall=5,
                              selected_by_percent=5,
                              transfers_in_out=50,
@@ -79,7 +81,10 @@ class PlayerWeights:
                                      mult=mult_weights)
 
     def _build_metrics(self, df_elements):
-        self.df_metrics = df_elements[['now_cost', 'total_points', 'chance_of_playing_next_round',
+        # df_elements[['ep_this', 'ep_next']] = df_elements[['ep_this', 'ep_next']].fillna(0).astype(float)
+        df_elements = df_elements.fillna(0)
+        self.df_metrics = df_elements[['ep_this', 'ep_next',
+                                       'now_cost', 'total_points', 'chance_of_playing_next_round',
                                        'team_strength_overall_home', 'team_strength_overall_away',
                                        'team_strength_attack_home', 'team_strength_attack_away',
                                        'team_strength_defence_home', 'team_strength_defence_away',
