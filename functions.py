@@ -1,5 +1,7 @@
 def eval_team(df_team, col_prefixes=None):
     res = dict(
+        ep_this=df_team['ep_this'].fillna(0).astype(float).sum(),
+        ep_next=df_team['ep_next'].fillna(0).astype(float).sum(),
         cost=df_team['now_cost'].sum(),
         points=df_team['total_points'].sum(),
         avg_select_percent=df_team['selected_by_percent'].astype(float).mean(),
@@ -12,7 +14,7 @@ def eval_team(df_team, col_prefixes=None):
             avg_pref_cols += [col for col in df_team.columns if col.startswith(prefix)]
 
         for col in avg_pref_cols:
-            res['avg_' + col] = df_team[col].mean()
+            res['avg_' + col] = df_team[col].astype(float).mean()
 
     return res
 

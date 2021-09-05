@@ -78,11 +78,13 @@ def main():
 
         st.dataframe(df_my_team)
 
-        st.markdown("## All players weighted")
+        st.markdown("## Pick your captain and VC - All players weighted")
 
         pw = PlayerWeights(df_elements=df_elements)
         df_elements.insert(0, "weights", pw.apply())
-        st.dataframe(df_elements.sort_values(by="weights", ascending=False))
+        columns_order = ['web_name', 'weights', 'ep_this', 'ep_next']
+        columns_order += [col for col in df_elements.columns if col not in columns_order]
+        st.dataframe(df_elements[columns_order].sort_values(by=["weights","ep_this","ep_next"], ascending=False))
 
         teams_to_exclude = st.multiselect("Exclude teams", df_teams.name)
         df_teams['pick'] = df_info["game_settings"]["squad_team_limit"]
@@ -97,7 +99,7 @@ def main():
                             top_n=st.slider("Find Top N players for each squad memmber", 5, 200, 50, 5),
                             extra_budget=bank_budget)
 
-        nq = sorted(nq, key=lambda x: (x[1]['avg_weights'], x[1]['points'], x[1]['cost'], x[1]['avg_select_percent']),
+        nq = sorted(nq, key=lambda x: (x[1]['avg_weights'], x[1]['ep_this'], x[1]['ep_next'], x[1]['points'], x[1]['cost'], x[1]['avg_select_percent']),
                     reverse=True)
 
         st.markdown("## Robo Klopp's Transfer Recommendations")
