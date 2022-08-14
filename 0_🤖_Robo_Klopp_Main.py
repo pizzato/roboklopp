@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layout="wide", initial_sidebar_state="auto", menu_items=None)
+st.set_page_config(page_title="Robo Klopp", page_icon='images/roboklopp_eye.jpeg', layout="wide", initial_sidebar_state="auto", menu_items=None)
 
 col1, col2 = st.columns([1, 3])
 
