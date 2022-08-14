@@ -5,6 +5,8 @@ from get_data import get_data
 from weighting import weight_func, eval_team
 from new_team_functions import get_squad_prod, combine_and_pick_top
 
+st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layout="wide", initial_sidebar_state="auto", menu_items=None)
+
 PHOTO_URL = "https://resources.premierleague.com/premierleague/photos/players/110x140/p{}.png"
 FILL_NA_CHANCE_OF_PLAYING = 100
 player_columns = ['code', 'first_name', 'second_name', 'now_cost', 'total_points']
@@ -13,10 +15,6 @@ fpl = FPLData(convert_to_dataframes=True)
 
 
 def main():
-    pg = ntc.draw_config(pick_groups=ntc.pick_groups_default, where=st.sidebar)
-
-    total_players = sum([pg[k]['players'].get(pos, 0) for k in pg for pos in ntc.MAP_POS_NUM])
-
     df_info, game_week, df_elements, df_teams, df_type = get_data(fpl)
 
     col1, col2 = st.columns([1, 3])
@@ -29,19 +27,24 @@ def main():
 
               ## _New Team Selection_
               
-              ### Note: This is was converted from notebooks and I have made some bugs during conversion, it is far from perfect and I am rebuilding this whole app from scratch.
               ---
               "humans coaches are overrated" -- Robo Klopp   
           """)
+    st.warning("This is was converted from notebooks and I have made some bugs during conversion, it is far from perfect and I am rebuilding this whole app from scratch.")
 
-    teams_to_exclude = st.multiselect("Exclude teams", df_teams.name)
+    pg = ntc.draw_config(pick_groups=ntc.pick_groups_default, where=st)
+    total_players = sum([pg[k]['players'].get(pos, 0) for k in pg for pos in ntc.MAP_POS_NUM])
 
-    n_draws_per_group = st.slider("Number of draws per group", min_value=10, max_value=400, value=200, step=10)
-    n_draws_selected_per_group = st.slider("Number of draws selected per group", min_value=5, max_value=50, value=10,
-                                           step=1, help="Number of evaluated groups is the product of all groups")
-    n_teams_to_recommend = st.slider("Number of teams to recommend", min_value=1, max_value=100, value=20,
-                                     help="Number of teams to evaluated at the end of it")
-    weight_for_cost_similarity_in_groups = 50
+    with st.sidebar:
+        st.markdown("### Configuration for all teams")
+        teams_to_exclude = st.multiselect("Exclude teams", df_teams.name)
+
+        n_draws_per_group = st.slider("Number of draws per group", min_value=10, max_value=1000, value=200, step=10)
+        n_draws_selected_per_group = st.slider("Number of draws selected per group", min_value=5, max_value=50, value=10,
+                                               step=1, help="Number of evaluated groups is the product of all groups")
+        n_teams_to_recommend = st.slider("Number of teams to recommend", min_value=1, max_value=100, value=20,
+                                         help="Number of teams to evaluated at the end of it")
+        weight_for_cost_similarity_in_groups = 50
 
     if st.button("Generate a new team", disabled=total_players != ntc.MAX_PLAYERS):
         st.write("Please select {} players".format(ntc.MAX_PLAYERS))

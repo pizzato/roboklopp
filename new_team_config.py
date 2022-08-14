@@ -7,33 +7,53 @@ MAX_POS = {'Goalkeeper': 2, 'Defender': 5, 'Midfielder': 5, 'Forward': 3}
 MAX_PLAYERS = 15
 WEIGHT_FOR_COST_SIMILARITY_IN_GROUPS = 50
 
+# pick_groups_default = {
+#     "Tier 1": dict(
+#         players={'Midfielder': 2},
+#         budget=250,
+#         weight_func=dict(add=dict(now_cost=10, total_points=10, team_strength_attack=1, selected_by_percent=10))),
+#     "Tier 2": dict(
+#         players={'Forward': 3},
+#         budget=250,
+#         weight_func=dict(add=dict(now_cost=2, total_points=5, team_strength_attack=1, selected_by_percent=10))),
+#     "Tier 3": dict(
+#         players={'Goalkeeper': 1, 'Defender': 3, "Midfielder": 2},
+#         budget=315,
+#         weight_func=dict(
+#             add=dict(now_cost=1, total_points=3, team_strength_overall=-2, team_strength_defence=1,
+#                      selected_by_percent=10))),
+#     "Tier 4": dict(
+#         players={'Goalkeeper': 1, 'Defender': 2, "Midfielder": 1},
+#         budget=185,
+#         weight_func=dict(add=dict(now_cost=-5, total_points=3, team_strength_overall=1, selected_by_percent=10)))
+# }
+
 pick_groups_default = {
     "Tier 1": dict(
-        players={'Midfielder': 2},
-        budget=250,
-        weight_func=dict(add=dict(now_cost=10, total_points=10, team_strength_attack=1, selected_by_percent=10))),
+        players={'Goalkeeper': 2, 'Defender': 5, 'Midfielder': 5, 'Forward': 3 },
+        budget=1000,
+        weight_func=dict(add=dict(now_cost=8, total_points=10, team_strength_overall=10, selected_by_percent=10))),
     "Tier 2": dict(
-        players={'Forward': 3},
-        budget=250,
-        weight_func=dict(add=dict(now_cost=2, total_points=5, team_strength_attack=1, selected_by_percent=10))),
-    "Tier 3": dict(
-        players={'Goalkeeper': 1, 'Defender': 3, "Midfielder": 2},
-        budget=315,
+        players={},
+        budget=0,
         weight_func=dict(
-            add=dict(now_cost=1, total_points=3, team_strength_overall=-2, team_strength_defence=1,
-                     selected_by_percent=10))),
+            add=dict(now_cost=0, total_points=0, team_strength_overall=0, team_strength_defence=0,
+                     selected_by_percent=0))),
+    "Tier 3": dict(
+        players={},
+        budget=0,
+        weight_func=dict(add=dict(now_cost=0, total_points=0, team_strength_attack=0, selected_by_percent=0))),
     "Tier 4": dict(
-        players={'Goalkeeper': 1, 'Defender': 2, "Midfielder": 1},
-        budget=185,
-        weight_func=dict(add=dict(now_cost=-5, total_points=3, team_strength_overall=1, selected_by_percent=10)))
+        players={},
+        budget=0,
+        weight_func=dict(add=dict(now_cost=0, total_points=0, team_strength_attack=0, selected_by_percent=0))),
 }
-
 
 def draw_config(pick_groups=None, where=st.sidebar):
     if pick_groups is None:
         pick_groups = pick_groups_default
 
-    where.header("Player types configuration")
+    where.markdown("### Team configuration using these criteria:")
     tabs = where.tabs(pick_groups.keys())
 
     # totals_pos = {pos: sum([pick_groups[k]['players'].get(pos, 0) for k in pick_groups]) for pos in MAP_POS_NUM}
@@ -65,12 +85,14 @@ def draw_config(pick_groups=None, where=st.sidebar):
                 c2.slider("Total", value=totals_pos[pos], max_value=MAX_POS[pos], step=1,
                           key="{}_{}_{}".format(k, pos, 'total'), disabled=True, )
 
-        t.write("Weights")
+        t.markdown("#### Weights")
         for w in all_weights:
             pick_groups[k]['weight_func']['add'][w] = t.slider(w, value=pick_groups[k]['weight_func']['add'].get(w, 0),
                                                                min_value=0, max_value=10, step=1,
                                                                key="{}_{}_{}".format(k, 'weight', w))
 
+    #keep groups with budget > 0
+    pick_groups = {k:d for k,d in pick_groups.items() if pick_groups[k]['budget'] > 0}
     return pick_groups
 
 

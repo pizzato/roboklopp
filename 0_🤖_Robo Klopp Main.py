@@ -1,0 +1,23 @@
+import streamlit as st
+
+st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layout="wide", initial_sidebar_state="auto", menu_items=None)
+
+col1, col2 = st.columns([1, 3])
+
+with col1:
+    st.image('images/roboklopp1.jpeg')
+
+with col2:
+    """
+          # Robo Klopp 
+        
+          ### What do you want Robo Klopp to do? 
+          Select the options on the left.
+          I can help you with 
+          - this week's transfers, or; 
+          - by creating a brand new team. 
+
+          ---
+          "humans coaches are overrated" -- Robo Klopp   
+    """
+
