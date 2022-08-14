@@ -111,3 +111,21 @@ class PlayerWeights:
                                                         'transfers_in_event', 'transfers_out_event',
                                                         'transfers_in', 'transfers_out',
                                                         ])
+
+
+def eval_team(df_team, col_prefixes=None):
+    res = dict(
+        cost=df_team['now_cost'].sum(),
+        points=df_team['total_points'].sum(),
+        avg_select_percent=df_team['selected_by_percent'].astype(float).mean()
+    )
+
+    if col_prefixes is not None:
+        avg_pref_cols = []
+        for prefix in col_prefixes:
+            avg_pref_cols += [col for col in df_team.columns if col.startswith(prefix)]
+
+        for col in avg_pref_cols:
+            res['avg_' + col] = df_team[col].mean()
+
+    return res
