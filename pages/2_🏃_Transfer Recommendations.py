@@ -7,6 +7,8 @@ from functions import squad_transfer
 from helpers import *
 from get_data import get_data
 
+st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layout="wide", initial_sidebar_state="auto", menu_items=None)
+
 PHOTO_URL = "https://resources.premierleague.com/premierleague/photos/players/110x140/p{}.png"
 FILL_NA_CHANCE_OF_PLAYING = 100
 filename_to_export = "RK_{squad_name}_GW_{gw}_Recommendations_{datetime}.xls"
