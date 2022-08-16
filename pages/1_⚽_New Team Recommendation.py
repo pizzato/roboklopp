@@ -117,8 +117,8 @@ def solve_lp(df, budget=BUDGET):
 
     # Solve the problem
     # st.write(pulp.listSolvers(onlyAvailable=True))
-    status = model.solve(solver=pulp.GLPK(msg=False))
-    # status = model.solve()
+    # status = model.solve(solver=pulp.GLPK(msg=False))
+    status = model.solve()
     if status == pulp.LpStatusOptimal:
         return [c for c in codes if pulp.value(players[c]) == 1]
     else:
