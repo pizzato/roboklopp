@@ -1,131 +1,128 @@
 import streamlit as st
 from fpldata import FPLData
-import new_team_config as ntc
 from get_data import get_data
-from weighting import weight_func, eval_team
-from new_team_functions import get_squad_prod, combine_and_pick_top
+import pulp
+
+# Team recommendation with Linear Programming based on https://statnamara.wordpress.com/2021/02/05/finding-the-best-lazy-fantasy-football-team-using-pulp-in-python/
 
 st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layout="wide", initial_sidebar_state="auto", menu_items=None)
 
 PHOTO_URL = "https://resources.premierleague.com/premierleague/photos/players/110x140/p{}.png"
-FILL_NA_CHANCE_OF_PLAYING = 100
-player_columns = ['code', 'first_name', 'second_name', 'now_cost', 'total_points']
-
-fpl = FPLData(convert_to_dataframes=True)
+player_columns = ['first_name', 'second_name', 'web_name', 'now_cost', 'total_points', 'ep_next', 'selected_by_percent', 'bonus', 'dreamteam_count', 'element_type']
+players = {'Goalkeeper': 2, 'Defender': 5, 'Midfielder': 5, 'Forward': 3}
+BUDGET = 1000
+map_pos_num = {'Goalkeeper': 1, 'Defender': 2, 'Midfielder': 3, 'Forward': 4}
+map_num_pos = {1: 'Goalkeeper', 2: 'Defender', 3: 'Midfielder', 4: 'Forward'}
 
 
 def main():
-    df_info, game_week, df_elements, df_teams, df_type = get_data(fpl)
-
     col1, col2 = st.columns([1, 3])
     with col1:
         st.image('images/roboklopp1.jpeg')
 
     with col2:
         st.markdown("""
-              # Robo Klopp presents: 
+                 # Robo Klopp presents: 
 
-              ## _New Team Selection_
-              
-              ---
-              "humans coaches are overrated" -- Robo Klopp   
-          """)
-    st.warning("This is was converted from notebooks and I have made some bugs during conversion, it is far from perfect and I am rebuilding this whole app from scratch.")
+                 ## _New Team Selection_
 
-    pg = ntc.draw_config(pick_groups=ntc.pick_groups_default, where=st)
-    total_players = sum([pg[k]['players'].get(pos, 0) for k in pg for pos in ntc.MAP_POS_NUM])
+                 ---
+                 "humans coaches are overrated" -- Robo Klopp   
+             """)
+
+    fpl = FPLData(convert_to_dataframes=True)
+
+    _, _, df_elements, _, _ = get_data(fpl)
+
+    df_elements.selected_by_percent = df_elements.selected_by_percent.astype(float)
+    df_elements.ep_next = df_elements.ep_next.astype(float)
+
+    df_elements.now_cost = df_elements.now_cost.astype(float)
+
+    df_elements = df_elements.set_index("code")
+
+    team = solve_lp(df_elements, budget=BUDGET)
+    if team is not None:
+        df_team = df_elements.loc[team]
+
+        st.markdown("### Team Created")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.dataframe(df_team[player_columns].sort_values(by=['element_type', 'total_points'], ascending=False))
+
+        with col2:
+            st.write("Team cost: ${:.2f}".format(sum(df_team.now_cost)))
+            st.write("Team total points: {:.2f}".format(sum(df_team.total_points)))
+            st.write("Team ep_next: {:.2f}".format(sum(df_team.ep_next)))
+            st.write("Team avg selected_by_percent: {:.2f}".format(sum(df_team.selected_by_percent)/11.))
+
+
+    else:
+        st.write("No solution found")
+
+
+def solve_lp(df, budget=BUDGET):
+    # Create the model
+    model = pulp.LpProblem(name="create-team", sense=pulp.LpMaximize)
+
+    codes = df.index.to_list()
+
+    players = pulp.LpVariable.dict("player", codes, 0, 1, cat=pulp.LpInteger)
+
+    # now_cost = pulp.LpVariable(name='now_cost', e=df.now_cost, lowBound=0, upBound=1000, cat='Integer')
+    # total_points = pulp.LpVariable(name='total_points', e=df.total_points, lowBound=0, cat='Integer')
+    # dreamteam_count = pulp.LpVariable(name='dreamteam_count', lowBound=0)
+    # ep_next = pulp.LpVariable(name='ep_next', lowBound=0)
+    # selected_by_percent = pulp.LpVariable(name='selected_by_percent', lowBound=0)
+    # bonus = pulp.LpVariable(name='bonus', lowBound=0)
+
+    # Add the constraints to the model
+    model += (sum(df.now_cost.loc[c] * players[c] for c in codes) <= budget, "cost")
+    model += (sum(players[c] for c in codes) == 11, "Max 11 players")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 1) == 1, "One Goalie")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 2) >= 3, "Min 3 Defenders")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 2) <= 5, "Max 5 Defenders")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 3) >= 3, "Min 3 Midfielders")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 3) <= 5, "Max 5 Midfielders")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 4) >= 1, "Min 1 Attackers")
+    model += (sum(players[c] for c in codes if df.element_type.loc[c] == 4) <= 3, "Max 3 Attackers")
+
+    # Add the objective function to the model
+    # model += pulp.lpSum([df.total_points.loc[c] * players[c]] for c in codes)
+    #
+    # model += pulp.lpSum([10 * df.total_points.loc[c] * players[c],
+    #                      1 * df.now_cost.loc[c] * players[c],
+    #                      5 * df.ep_next.loc[c] * players[c],
+    #                      3 * df.selected_by_percent.loc[c] * players[c],
+    #                      1 * df.bonus.loc[c] * players[c],
+    #                      1 * df.dreamteam_count.loc[c] * players[c]] for c in codes
+    #                     )
 
     with st.sidebar:
-        st.markdown("### Configuration for all teams")
-        teams_to_exclude = st.multiselect("Exclude teams", df_teams.name)
+        w_points = st.slider("Total Points", min_value=0, max_value=10, value=10)
+        w_cost = st.slider("Cost", min_value=0, max_value=10, value=1)
+        w_ep = st.slider("EP", min_value=0, max_value=10, value=5)
+        w_selected = st.slider("Selected", min_value=0, max_value=10, value=3)
+        w_bonus = st.slider("Bonus", min_value=0, max_value=10, value=1)
+        w_dreamteam = st.slider("Dreamteam", min_value=0, max_value=10, value=1)
 
-        n_draws_per_group = st.slider("Number of draws per group", min_value=10, max_value=1000, value=200, step=10)
-        n_draws_selected_per_group = st.slider("Number of draws selected per group", min_value=5, max_value=50, value=10,
-                                               step=1, help="Number of evaluated groups is the product of all groups")
-        n_teams_to_recommend = st.slider("Number of teams to recommend", min_value=1, max_value=100, value=20,
-                                         help="Number of teams to evaluated at the end of it")
-        weight_for_cost_similarity_in_groups = 50
-
-    if st.button("Generate a new team", disabled=total_players != ntc.MAX_PLAYERS):
-        st.write("Please select {} players".format(ntc.MAX_PLAYERS))
-
-        _cost_min = df_elements['now_cost'].min()
-        _cost_max = df_elements['now_cost'].max()
-
-        def _cost_norm(cost):
-            return (cost - _cost_min) / (_cost_max - _cost_min)
-
-        group_budget_player_norm = {k: _cost_norm(d["budget"] / sum(d["players"].values())) for k, d in
-                                    pg.items()}
-
-        for pos, d in pg.items():
-            args = d["weight_func"]
-            args.update(dict(mult=dict(rk_change_playing_filled=1)))
-            args.update(dict(sim=dict(now_cost=(weight_for_cost_similarity_in_groups, group_budget_player_norm[pos]))))
-
-        df_elements['rk_change_playing_filled'] = df_elements.chance_of_playing_next_round.fillna(100)
-
-        df_metrics = df_elements[['now_cost', 'ep_next', 'total_points', 'rk_change_playing_filled',
-                                  'team_strength_overall_home', 'team_strength_overall_away',
-                                  'team_strength_attack_home', 'team_strength_attack_away',
-                                  'team_strength_defence_home', 'team_strength_defence_away',
-                                  'selected_by_percent']].astype(float)
-
-        df_metrics['team_strength_attack'] = df_metrics[
-            ['team_strength_attack_home', 'team_strength_attack_away']].mean(axis=1)
-        df_metrics['team_strength_defence'] = df_metrics[
-            ['team_strength_defence_home', 'team_strength_defence_away']].mean(axis=1)
-        df_metrics['team_strength_overall'] = df_metrics[
-            ['team_strength_overall_home', 'team_strength_overall_away']].mean(axis=1)
-
-        for pos, d in pg.items():
-            df_elements['w_' + pos] = weight_func(df_metrics, **d["weight_func"])
-
-        weight_columns = [col for col in df_elements.columns if col.startswith('w_')]
-
-        # normalise
-        df_elements[weight_columns] = (df_elements[weight_columns] - df_elements[weight_columns].min()) / (
-                df_elements[weight_columns].max() - df_elements[weight_columns].min())
-
-        """##### Spot check top players"""
-
-        df_elements.sort_values(by='w_Tier 1', ascending=False, ignore_index=True)[player_columns + weight_columns]
-
-        # Weight distro
-
-        df_elements[weight_columns].describe()
-
-        df_teams['pick'] = 3
-        df_teams.loc[df_teams['name'].isin(teams_to_exclude), 'pick'] = 0
-        team_budget = {t_['code']: t_['pick'] for t_ in df_teams[['code', 'pick']].to_dict('record')}
-
-        pick_group_order = sorted(pg.keys())
-
-        comb_squad = get_squad_prod(df=df_elements, pick_group_order=pick_group_order, pick_groups_config=pg,
-                                    team_budget=team_budget, extra_budget=0, top_n=n_draws_selected_per_group,
-                                    ndraws_per_group=n_draws_per_group)
-
-        # squad[player_columns + weight_columns]
-        print("Combine squads")
-        tt_ = combine_and_pick_top(comb_squad, by_order=['points', 'avg_select_percent', 'cost'],
-                                   top_n=n_teams_to_recommend)
-
-        """# RoboKloop Recommendations
-        """
-        recommended_teams = sorted([(eval_team(sq), sq) for sq in tt_], key=lambda x: x[0]['avg_select_percent'],
-                                   reverse=True)
-
-        """#### Team Recommendation - Order from best to worse"""
-
-        for i, (e, sq) in enumerate(recommended_teams):
-            st.write("Team: {}   Cost: {:.0f}   Points: {:.2f}   Avg Select: {:.2f}".format(i, e['cost'], e['points'],
-                                                                                            e['avg_select_percent']))
-
-            st.dataframe(sq[player_columns + weight_columns + ['type_name']].sort_values(by=['type_name', 'code'],
-                                                                                         ascending=False,
-                                                                                         ignore_index=True).head(
-                n_teams_to_recommend))
+    model += pulp.lpSum([w_points * df.total_points.loc[c] * players[c],
+                         w_cost * df.now_cost.loc[c] * players[c],
+                         w_ep * df.ep_next.loc[c] * players[c],
+                         w_selected * df.selected_by_percent.loc[c] * players[c],
+                         w_bonus * df.bonus.loc[c] * players[c],
+                         w_dreamteam * df.dreamteam_count.loc[c] * players[c]]
+                        for c in codes)
 
 
-if __name__ == '__main__':
+    # Solve the problem
+    # st.write(pulp.listSolvers(onlyAvailable=True))
+    # status = model.solve(solver=pulp.GLPK(msg=False))
+    status = model.solve()
+    if status == pulp.LpStatusOptimal:
+        return [c for c in codes if pulp.value(players[c]) == 1]
+    else:
+        return None
+
+if __name__ == "__main__":
     main()
