@@ -2,6 +2,7 @@ import streamlit as st
 from fpldata import FPLData
 from get_data import get_data
 import pulp
+import random
 
 # Team recommendation with Linear Programming based on https://statnamara.wordpress.com/2021/02/05/finding-the-best-lazy-fantasy-football-team-using-pulp-in-python/
 
@@ -84,7 +85,7 @@ def solve_group(df, budget, total_players, players_minmax, max_players_per_team,
 def main():
     col1, col2 = st.columns([1, 3])
     with col1:
-        st.image('images/roboklopp1.jpeg')
+        st.image('images/roboklopp{}.png'.format(random.randint(1, 10)))
 
     with col2:
         st.markdown("""
