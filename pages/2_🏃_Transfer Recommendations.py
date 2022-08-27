@@ -198,14 +198,14 @@ def main():
         with col1:
             st.markdown("#### Replace players ####")
 
-            for player in df_lineup_not_in_my_team.itertuples():
+            for player in df_my_team_not_in_lineup.itertuples():
                 st.image(player.photo_url, width=100)
                 st.markdown(player.web_name)
 
         with col2:
             st.markdown("#### with players ####")
 
-            for player in df_my_team_not_in_lineup.itertuples():
+            for player in df_lineup_not_in_my_team.itertuples():
                 st.image(player.photo_url, width=100)
                 st.markdown(player.web_name)
 
