@@ -144,8 +144,7 @@ def main():
                          group_name='Main Lineup')
 
     if lineup is None:
-        st.write("No subs found")
-        return
+        st.write("No lineup found or problem is infeasible")
 
     df_lineup = df_elements.loc[lineup]
 
