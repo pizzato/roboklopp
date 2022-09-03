@@ -1,5 +1,6 @@
 import random
 
+import requests.exceptions
 import streamlit as st
 from fpldata import FPLData
 from get_data import get_data
@@ -123,15 +124,22 @@ def main():
     squad_total_players = 15
     squad_players = {'Goalkeeper': (2, 2), 'Defender': (5, 5), 'Midfielder': (5, 5), 'Forward': (3, 3)}
 
-    my_team = st.text_input("My Team", max_chars=10, key=None, type='default')
+    my_team_num = st.text_input("My Team Number", max_chars=10, key=None, type='default',
+                                help="My Team Number only accept numbers. Please log-in into FPL website and look at the URL of your team while in a league to find out the number.")
     email = st.text_input("Email", max_chars=None, key=None, type='default')
     password = st.text_input("Password", max_chars=None, key=None, type='password')
-    if (my_team != "") and (email != "") and (password != ""):
-        capt_ = fpl.fetch_managers([my_team])[my_team].iloc[0]
+
+    if (my_team_num != "") and (email != "") and (password != ""):
+        try:
+            my_team = fpl.fetch_my_team(my_team=my_team_num, email=email, password=password)
+        except requests.exceptions.JSONDecodeError:
+            st.error("Something wrong in your log in information.")
+            return
+
+        capt_ = fpl.fetch_managers([my_team_num])[my_team_num].iloc[0]
+
         captain_name = capt_.player_first_name + " " + capt_.player_last_name
         squad_name = capt_["name"]
-
-        my_team = fpl.fetch_my_team(my_team=my_team, email=email, password=password)
 
         my_team_value = my_team['transfers']['value']
         my_team_bank = my_team['transfers']['bank']
@@ -153,6 +161,7 @@ def main():
 
         """.format(squad_name=squad_name, captain_name=captain_name))
 
+        # with st.expander("Squad Photos"):
         for i, col in enumerate(st.columns(len(df_my_team))):
             with col:
                 player = df_my_team.iloc[i]
@@ -164,7 +173,7 @@ def main():
                 st.markdown("<div style='writing-mode: vertical-rl;'>{name}</div>".format(name=player.web_name),
                             unsafe_allow_html=True)
 
-        # st.dataframe(df_my_team)
+            # st.dataframe(df_my_team)
 
         n_transfers = st.sidebar.slider("Number of Transfers", min_value=0, max_value=squad_total_players,
                                         value=my_team_transfers_limit)
@@ -179,8 +188,11 @@ def main():
                              group_name='Weights')
 
         if lineup is None:
-            st.write("No subs found")
-            return
+            st.markdown("""
+                ---
+                ## No good transfers found or problem infeasible
+            """)
+            lineup = list(df_my_team.code)
 
         df_lineup = df_elements.set_index('code').loc[lineup].sort_values(['element_type', 'code'], ascending=True)
 
@@ -190,24 +202,25 @@ def main():
         # Players in the lineup not in my team
         df_lineup_not_in_my_team = df_lineup[~df_lineup.index.isin(df_my_team.code)]
 
-        st.markdown("""
-            ---
-            ## Transfer Recommendations
-        """)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("#### Replace players ####")
+        if len(df_lineup_not_in_my_team) > 0:
+            st.markdown("""
+                ---
+                ## Transfer Recommendations
+            """)
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("#### Replace players ####")
 
-            for player in df_my_team_not_in_lineup.itertuples():
-                st.image(player.photo_url, width=100)
-                st.markdown(player.web_name)
+                for player in df_my_team_not_in_lineup.itertuples():
+                    st.image(player.photo_url, width=100)
+                    st.markdown(player.web_name)
 
-        with col2:
-            st.markdown("#### with players ####")
+            with col2:
+                st.markdown("#### with players ####")
 
-            for player in df_lineup_not_in_my_team.itertuples():
-                st.image(player.photo_url, width=100)
-                st.markdown(player.web_name)
+                for player in df_lineup_not_in_my_team.itertuples():
+                    st.image(player.photo_url, width=100)
+                    st.markdown(player.web_name)
 
         _ep_top = df_lineup.sort_values(['ep_next', 'total_points'], ascending=False)
         lu_captain = _ep_top.iloc[0].web_name
@@ -228,7 +241,7 @@ def main():
                             unsafe_allow_html=True)
 
         st.dataframe(
-            df_lineup[player_columns + other_columns].sort_values(by=['element_type', 'total_points'], ascending=False))
+            df_lineup[player_columns + other_columns].sort_values(by=['ep_next', 'element_type', 'total_points'], ascending=False))
 
         st.markdown("### Selected Team Summary")
 
