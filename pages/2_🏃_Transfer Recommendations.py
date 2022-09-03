@@ -93,7 +93,10 @@ def main():
     col1, col2 = st.columns([1, 3])
     with col1:
 
-        st.image('images/roboklopp{}.png'.format(random.randint(1, 10)))
+        if random.randint(0, 1) == 1:
+            st.image('images/roboklopp{}.png'.format(random.randint(1, 10)))
+        else:
+            st.image('images/roboklopp_brain.gif')
 
     with col2:
         st.markdown("""
