@@ -12,7 +12,7 @@ st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layou
                    menu_items=None)
 
 PHOTO_URL = "https://resources.premierleague.com/premierleague/photos/players/110x140/p{}.png"
-player_columns = ['type_name', 'web_name', 'full_name', 'team_name', 'now_cost', 'total_points', 'ep_next',
+player_columns = ['type_name', 'web_name', 'full_name', 'team_name', 'now_cost', 'total_points', 'ep_next', 'form',
                   'selected_by_percent', 'bonus', 'dreamteam_count', 'element_type']
 
 BUDGET = 1000
@@ -66,6 +66,9 @@ def solve_group(df, current_team, n_transfers, budget, total_players, players_mi
         w_cost = st.slider("Cost", min_value=0, max_value=10, value=1, key='{}-{}'.format(group_name, 'cost'))
         w_ep = st.slider("Expected Points Next Round", min_value=0, max_value=10, value=5,
                          key='{}-{}'.format(group_name, 'ep'))
+        w_form = st.slider("Form", min_value=0, max_value=10, value=3,
+                         key='{}-{}'.format(group_name, 'form'))
+
         w_selected = st.slider("Selected by Percent", min_value=0, max_value=10, value=3,
                                key='{}-{}'.format(group_name, 'selected'))
         w_bonus = st.slider("Bonus Points", min_value=0, max_value=10, value=1, key='{}-{}'.format(group_name, 'bonus'))
@@ -75,6 +78,7 @@ def solve_group(df, current_team, n_transfers, budget, total_players, players_mi
     model += pulp.lpSum([w_points * df.total_points.loc[c] * group[c],
                          w_cost * df.now_cost.loc[c] * group[c],
                          w_ep * df.ep_next.loc[c] * group[c],
+                         w_form * df.form.loc[c] * group[c],
                          w_selected * df.selected_by_percent.loc[c] * group[c],
                          w_bonus * df.bonus.loc[c] * group[c],
                          w_dreamteam * df.dreamteam_count.loc[c] * group[c]] for c in codes)
@@ -116,6 +120,7 @@ def main():
 
     df_elements.selected_by_percent = df_elements.selected_by_percent.astype(float)
     df_elements.ep_next = df_elements.ep_next.astype(float)
+    df_elements.form = df_elements.form.astype(float)
 
     df_elements.now_cost = df_elements.now_cost.astype(float)
 
@@ -225,7 +230,7 @@ def main():
                     st.image(player.photo_url, width=100)
                     st.markdown(player.web_name)
 
-        _ep_top = df_lineup.sort_values(['ep_next', 'total_points'], ascending=False)
+        _ep_top = df_lineup.sort_values(['ep_next', 'total_points', 'form'], ascending=False)
         lu_captain = _ep_top.iloc[0].web_name
         lu_vice_captain = _ep_top.iloc[1].web_name
 
