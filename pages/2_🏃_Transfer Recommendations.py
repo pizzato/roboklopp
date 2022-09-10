@@ -12,7 +12,7 @@ st.set_page_config(page_title=None, page_icon='images/roboklopp_eye.jpeg', layou
                    menu_items=None)
 
 PHOTO_URL = "https://resources.premierleague.com/premierleague/photos/players/110x140/p{}.png"
-player_columns = ['type_name', 'web_name', 'full_name', 'team_name', 'now_cost', 'total_points', 'ep_next', 'form'
+player_columns = ['type_name', 'web_name', 'full_name', 'team_name', 'now_cost', 'total_points', 'ep_next', 'form',
                   'selected_by_percent', 'bonus', 'dreamteam_count', 'element_type']
 
 BUDGET = 1000
@@ -67,7 +67,7 @@ def solve_group(df, current_team, n_transfers, budget, total_players, players_mi
         w_ep = st.slider("Expected Points Next Round", min_value=0, max_value=10, value=5,
                          key='{}-{}'.format(group_name, 'ep'))
         w_form = st.slider("Form", min_value=0, max_value=10, value=3,
-                         key='{}-{}'.format(group_name, 'ep'))
+                         key='{}-{}'.format(group_name, 'form'))
 
         w_selected = st.slider("Selected by Percent", min_value=0, max_value=10, value=3,
                                key='{}-{}'.format(group_name, 'selected'))
@@ -120,6 +120,7 @@ def main():
 
     df_elements.selected_by_percent = df_elements.selected_by_percent.astype(float)
     df_elements.ep_next = df_elements.ep_next.astype(float)
+    df_elements.form = df_elements.form.astype(float)
 
     df_elements.now_cost = df_elements.now_cost.astype(float)
 
