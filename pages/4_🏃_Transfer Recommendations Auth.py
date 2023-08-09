@@ -106,7 +106,7 @@ def main():
         st.markdown("""
                  # Robo Klopp presents: 
 
-                 ## _New Team Selection_
+                 ## _Transfer Recommendation_
 
                  ---
                  "humans coaches are overrated" -- Robo Klopp   
