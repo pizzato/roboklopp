@@ -124,7 +124,7 @@ def main():
                                      key='squad-budget')
     subs_budget = min_player_cost * subs_total_players
     subs_budget = st.sidebar.slider("Budget for Substitutes", min_value=subs_budget,
-                                    max_value=squad_budget - min_player_cost * lineup_total_players, value=subs_budget)
+                                    max_value=squad_budget - min_player_cost * lineup_total_players, value=subs_budget+20)
     lineup_budget = squad_budget - subs_budget
 
     squad_players = {'Goalkeeper': 2, 'Defender': 5, 'Midfielder': 5, 'Forward': 3}
