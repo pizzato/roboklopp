@@ -1,7 +1,6 @@
-pandas==1.4.3
-streamlit==1.11.1
-pulp==2.6.0
-#scikit-glpk==0.4.4
-scipy==1.10.0
-git+https://github.com/pizzato/FPLData@1.01#egg=fpldata
+pandas
+streamlit
+pulp
+scipy
+git+https://github.com/pizzato/FPLData@1.1#egg=fpldata
 # need: conda install -c conda-forge glpk
