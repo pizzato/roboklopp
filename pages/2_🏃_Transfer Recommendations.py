@@ -106,16 +106,16 @@ def main():
         st.markdown("""
                  # Robo Klopp presents: 
 
-                 ## _New Team Selection_
+                 ## _Transfer Recommendation_
 
                  ---
                  "humans coaches are overrated" -- Robo Klopp   
              """)
 
     st.markdown("""#### For authenticated functions:
-     1. Open this page in another window and login: [https://fantasy.premierleague.com] 
-     2. After a login, right click inspect the page and grab the value of the cookie pl_profile and paste here. Mind that this cookie value will end with a "="
-     3. Enter team number
+1. Open this page in another window and login: [https://fantasy.premierleague.com] 
+2. After a login, right click inspect the page and grab the value of the cookie pl_profile and paste here. Mind that this cookie value will end with a "="
+3. Enter team number
     """)
 
     pl_profile_cookie = st.text_input(label="Cookie: pl_profile=")
