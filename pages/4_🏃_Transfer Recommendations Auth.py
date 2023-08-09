@@ -111,20 +111,12 @@ def main():
                  ---
                  "humans coaches are overrated" -- Robo Klopp   
              """)
+        st.warning("Unfortunately, Username and password are not currently working, for authenticated version use the cookies version above ")
 
-    st.markdown("""#### For authenticated functions:
-     1. Open this page in another window and login: [https://fantasy.premierleague.com] 
-     2. After a login, right click inspect the page and grab the value of the cookie pl_profile and paste here. Mind that this cookie value will end with a "="
-     3. Enter team number
-    """)
+    fpl = FPLData(convert_to_dataframes=True)
 
-    pl_profile_cookie = st.text_input(label="Cookie: pl_profile=")
+    _, _, df_elements, _, _ = get_data(fpl)
 
-    fpl = FPLData(convert_to_dataframes=True, pl_profile_cookie=pl_profile_cookie)
-
-    _, game_week, df_elements, _, _ = get_data(fpl)
-
-    df_elements['element'] = df_elements.index.values
     df_elements['photo_url'] = df_elements['code'].apply(lambda x: PHOTO_URL.format(x))
 
     df_elements.selected_by_percent = df_elements.selected_by_percent.astype(float)
@@ -143,12 +135,12 @@ def main():
 
     my_team_num = st.text_input("My Team Number", max_chars=10, key=None, type='default',
                                 help="My Team Number only accept numbers. Please log-in into FPL website and look at the URL of your team while in a league to find out the number.")
-    # email = st.text_input("Email", max_chars=None, key=None, type='default')
-    # password = st.text_input("Password", max_chars=None, key=None, type='password')
+    email = st.text_input("Email", max_chars=None, key=None, type='default')
+    password = st.text_input("Password", max_chars=None, key=None, type='password')
 
-    if (my_team_num != "") and (pl_profile_cookie != ""):
+    if (my_team_num != "") and (email != "") and (password != ""):
         try:
-            my_team = fpl.fetch_my_team(my_team=my_team_num)
+            my_team = fpl.fetch_my_team(my_team=my_team_num, email=email, password=password)
         except requests.exceptions.JSONDecodeError:
             st.error("Something wrong in your log in information.")
             return
@@ -275,16 +267,6 @@ def main():
         ep_gain = sum(df_lineup.ep_next) - sum(df_my_team.ep_next)
         st.write("Expected points gain: {:.2f} points ".format(ep_gain))
         st.write("Expected points gain minus cost: {:.2f} points ".format(ep_gain - point_cost))
-
-
-        st.markdown("### Execute Transfer Automatically")
-        st.markdown(f'Players out: {", ".join(df_my_team_not_in_lineup.web_name)}')
-        st.markdown(f'Players in: {", ".join(df_lineup_not_in_my_team.web_name)}')
-        if st.button("Execute transfer"):
-
-            st.markdown(f"Executing: fpl.transfer(my_team={my_team_num}, event={game_week}, elements_in={df_lineup_not_in_my_team['element'].tolist()}, elements_out={df_my_team_not_in_lineup.index.tolist()})")
-            r = fpl.transfer(my_team=int(my_team_num), event=game_week, elements_in=df_lineup_not_in_my_team['element'].tolist(), elements_out=df_my_team_not_in_lineup.index.tolist())
-            st.markdown(f"Returned {r.status_code} {r.reason}")
 
 
 if __name__ == "__main__":

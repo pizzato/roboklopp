@@ -170,6 +170,9 @@ def main():
             my_team_transfers_limit = my_team['transfers']['limit']
             my_team_transfers_cost = my_team['transfers']['cost']
 
+            if my_team_transfers_limit is None:
+                my_team_transfers_limit = 15
+
             df_my_team = my_team['picks'].set_index('element').join(df_elements).sort_values(['element_type', 'code'],
                                                                                              ascending=True)
 
