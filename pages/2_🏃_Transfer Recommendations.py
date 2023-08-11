@@ -277,15 +277,19 @@ def main():
         st.write("Expected points gain minus cost: {:.2f} points ".format(ep_gain - point_cost))
 
 
-        st.markdown("### Execute Transfer Automatically")
-        st.markdown(f'Players out: {", ".join(df_my_team_not_in_lineup.web_name)}')
-        st.markdown(f'Players in: {", ".join(df_lineup_not_in_my_team.web_name)}')
-        if st.button("Execute transfer"):
+        st.markdown("### Execute Transfer and Pick Automatically")
+        if len(df_my_team_not_in_lineup) > 0:
+            st.markdown(f'Players out: {", ".join(df_my_team_not_in_lineup.web_name)}')
+            st.markdown(f'Players in: {", ".join(df_lineup_not_in_my_team.web_name)}')
+            if st.button("Execute transfer"):
+                st.markdown(f"Executing: fpl.transfer(my_team={my_team_num}, event={game_week}, elements_in={df_lineup_not_in_my_team['element'].tolist()}, elements_out={df_my_team_not_in_lineup.index.tolist()})")
+                r = fpl.transfer(my_team=int(my_team_num), event=game_week, elements_in=df_lineup_not_in_my_team['element'].tolist(), elements_out=df_my_team_not_in_lineup.index.tolist())
+                st.markdown(f"Returned {r.status_code} {r.reason}")
 
-            st.markdown(f"Executing: fpl.transfer(my_team={my_team_num}, event={game_week}, elements_in={df_lineup_not_in_my_team['element'].tolist()}, elements_out={df_my_team_not_in_lineup.index.tolist()})")
-            r = fpl.transfer(my_team=int(my_team_num), event=game_week, elements_in=df_lineup_not_in_my_team['element'].tolist(), elements_out=df_my_team_not_in_lineup.index.tolist())
+        if st.button("Execute team pick"):
+            st.markdown(f"Executing: fpl.pick_team(my_team={my_team_num})")
+            r = fpl.pick_team(my_team=int(my_team_num))
             st.markdown(f"Returned {r.status_code} {r.reason}")
-
 
 if __name__ == "__main__":
     main()
